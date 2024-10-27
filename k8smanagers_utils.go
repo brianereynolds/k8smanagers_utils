@@ -37,9 +37,29 @@ func CompareVersions(version1, version2 string) (int, error) {
 	return 0, nil
 }
 
-// GetManagedClusterClient will create a Container Service Client
+func getDefaultAzureCredential(ctx context.Context) (*azidentity.DefaultAzureCredential, error) {
+
+	if ctx.Value("DefaultAzureCredential") != nil {
+		return ctx.Value("DefaultAzureCredential").(*azidentity.DefaultAzureCredential), nil
+	}
+
+	cred, err := azidentity.NewDefaultAzureCredential(nil)
+	if err != nil {
+		return nil, err
+	}
+	context.WithValue(ctx, "DefaultAzureCredential", cred)
+	return cred, nil
+}
+
+// GetManagedClusterClient will create a Managed Clusters Client
+// The first time the function is called it will cache the object, and return this on subsequent calls.
 func GetManagedClusterClient(ctx context.Context, sub string) (*armcontainerservice.ManagedClustersClient, error) {
-	cred, err := GetAzureCredential(ctx)
+
+	if ctx.Value("ManagedClusterClient") != nil {
+		return ctx.Value("ManagedClusterClient").(*armcontainerservice.ManagedClustersClient), nil
+	}
+
+	cred, err := getDefaultAzureCredential(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -49,15 +69,28 @@ func GetManagedClusterClient(ctx context.Context, sub string) (*armcontainerserv
 		return nil, err
 	}
 
+	context.WithValue(ctx, "ManagedClusterClient", managedClustersClient)
+
 	return managedClustersClient, nil
 }
 
-// GetAzureCredential will create a new Azure Credential
-func GetAzureCredential(ctx context.Context) (*azidentity.DefaultAzureCredential, error) {
-	cred, err := azidentity.NewDefaultAzureCredential(nil)
+// GetAgentPoolClient will create a Agent Pools Client
+// The first time the function is called it will cache the object, and return this on subsequent calls.
+func GetAgentPoolClient(ctx context.Context, sub string) (*armcontainerservice.AgentPoolsClient, error) {
+
+	if ctx.Value("AgentPoolsClient") != nil {
+		return ctx.Value("AgentPoolsClient").(*armcontainerservice.AgentPoolsClient), nil
+	}
+
+	cred, err := getDefaultAzureCredential(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return cred, nil
+	agentPoolClient, err := armcontainerservice.NewAgentPoolsClient(sub, cred, nil)
+	if err != nil {
+		return nil, err
+	}
+	context.WithValue(ctx, "AgentPoolsClient", agentPoolClient)
+	return agentPoolClient, nil
 }
