@@ -1,6 +1,6 @@
 module github.com/brianereynolds/k8smanagers_utils
 
-go 1.23.2
+go 1.22.8
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.8.0
