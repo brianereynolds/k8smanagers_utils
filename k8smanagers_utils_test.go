@@ -1,6 +1,7 @@
 package k8smanagers_utils
 
 import "testing"
+import "context"
 
 func Test_compareVersions(t *testing.T) {
 
@@ -31,5 +32,35 @@ func Test_compareVersions(t *testing.T) {
 	expected = 0
 	if (err != nil) || (result != expected) {
 		t.Errorf("compareVersions(1.24.0, 1.24.0) = %d; want %d", result, expected)
+	}
+}
+
+func Test_GetManagedClusterClient(t *testing.T) {
+	ctx := context.Background()
+
+	_, err := GetManagedClusterClient(ctx, "SUBID")
+
+	if err != nil {
+		print(err.Error())
+	}
+}
+
+func Test_GetAgentPoolClient(t *testing.T) {
+	ctx := context.Background()
+
+	_, err := GetAgentPoolClient(ctx, "SUBID")
+
+	if err != nil {
+		print(err.Error())
+	}
+}
+
+func Test_GetClientSet(t *testing.T) {
+	ctx := context.Background()
+
+	_, err := GetClientSet(ctx, nil)
+
+	if err != nil {
+		print(err.Error())
 	}
 }

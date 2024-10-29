@@ -4,10 +4,13 @@ import (
 	"context"
 	"errors"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
+	"os"
 	"strconv"
 	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/containerservice/armcontainerservice"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 // CompareVersions will compare the versions by breaking them down into major, minor, and patch components
@@ -68,9 +71,7 @@ func GetManagedClusterClient(ctx context.Context, sub string) (*armcontainerserv
 	if err != nil {
 		return nil, err
 	}
-
 	context.WithValue(ctx, "ManagedClusterClient", managedClustersClient)
-
 	return managedClustersClient, nil
 }
 
@@ -93,4 +94,24 @@ func GetAgentPoolClient(ctx context.Context, sub string) (*armcontainerservice.A
 	}
 	context.WithValue(ctx, "AgentPoolsClient", agentPoolClient)
 	return agentPoolClient, nil
+}
+
+func GetClientSet(ctx context.Context, kubeconfig []byte) (*kubernetes.Clientset, error) {
+	kubeconfigPath := "/kubeconfig"
+	err := os.WriteFile(kubeconfigPath, kubeconfig, 0600)
+	if err != nil {
+		return nil, err
+	}
+
+	// Load the kubeconfig to create a Kubernetes client
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
+	if err != nil {
+		return nil, err
+	}
+
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	return clientset, nil
 }
