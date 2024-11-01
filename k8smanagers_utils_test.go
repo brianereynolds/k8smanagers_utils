@@ -64,3 +64,61 @@ func Test_GetClientSet(t *testing.T) {
 		print(err.Error())
 	}
 }
+
+func Test_IsLowercaseAndNumbers(t *testing.T) {
+	result := IsLowercaseAndNumbers(context.Background(), "abcabc")
+	expected := true
+	if result != expected {
+		t.Errorf("Test failed ")
+	}
+
+	result = IsLowercaseAndNumbers(context.Background(), "Abcabc")
+	expected = false
+	if result != expected {
+		t.Errorf("Test failed ")
+	}
+
+	result = IsLowercaseAndNumbers(context.Background(), "abcabc349A")
+	expected = false
+	if result != expected {
+		t.Errorf("Test failed ")
+	}
+
+	result = IsLowercaseAndNumbers(context.Background(), "abc-1da")
+	expected = false
+	if result != expected {
+		t.Errorf("Test failed ")
+	}
+
+	result = IsLowercaseAndNumbers(context.Background(), "abc_1da")
+	expected = false
+	if result != expected {
+		t.Errorf("Test failed ")
+	}
+
+	result = IsLowercaseAndNumbers(context.Background(), "abc+1da")
+	expected = false
+	if result != expected {
+		t.Errorf("Test failed ")
+	}
+}
+
+func Test_StartsWithANumber(t *testing.T) {
+	result := StartsWithANumber(context.Background(), "1abc")
+	expected := true
+	if result != expected {
+		t.Errorf("Test failed ")
+	}
+
+	result = StartsWithANumber(context.Background(), "")
+	expected = false
+	if result != expected {
+		t.Errorf("Test failed ")
+	}
+
+	result = StartsWithANumber(context.Background(), "a111a")
+	expected = false
+	if result != expected {
+		t.Errorf("Test failed ")
+	}
+}

@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/containerservice/armcontainerservice"
 	"k8s.io/client-go/kubernetes"
@@ -114,4 +115,22 @@ func GetClientSet(ctx context.Context, kubeconfig []byte) (*kubernetes.Clientset
 		return nil, err
 	}
 	return clientset, nil
+}
+
+// IsLowercaseAndNumbers returns true if the string contains lowercase letters and numbers
+// Otherwise it returns false
+func IsLowercaseAndNumbers(ctx context.Context, s string) bool {
+	for _, char := range s {
+		if !unicode.IsLower(char) && !unicode.IsDigit(char) {
+			return false
+		}
+	}
+	return true
+}
+
+func StartsWithANumber(ctx context.Context, s string) bool {
+	if len(s) == 0 {
+		return false
+	}
+	return unicode.IsDigit(rune(s[0]))
 }
